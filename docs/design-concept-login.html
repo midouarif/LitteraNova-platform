@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concept — Écran de connexion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:        #1C2430;
+    --ink-soft:   #2A3444;
+    --paper:      #EFE6D3;
+    --paper-card: #FAF4E6;
+    --garnet:     #8B2E2E;
+    --garnet-dark:#6E2222;
+    --brass:      #B8935A;
+    --ink-text:   #2E2A24;
+    --paper-faint:#DED2B8;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'IBM Plex Sans', sans-serif;
+    background:var(--paper);
+    color:var(--ink-text);
+    min-height:100vh;
+    display:flex;
+  }
+  .wrap{
+    display:flex;
+    width:100%;
+    min-height:100vh;
+  }
+
+  /* LEFT PANEL */
+  .left{
+    flex:1.15;
+    background:
+      radial-gradient(circle at 85% 20%, rgba(184,147,90,0.10), transparent 55%),
+      linear-gradient(180deg, var(--ink) 0%, var(--ink-soft) 100%);
+    color:var(--paper-card);
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:56px 64px;
+    position:relative;
+    overflow:hidden;
+  }
+  .left::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(250,244,230,0.025) 0px, rgba(250,244,230,0.025) 1px, transparent 1px, transparent 34px);
+    pointer-events:none;
+  }
+  .brandmark{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--brass);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .brandmark .dot{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--brass);
+    display:inline-block;
+  }
+  .quote-block{
+    max-width:480px;
+  }
+  .quote-eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:rgba(250,244,230,0.45);
+    margin-bottom:22px;
+  }
+  .quote{
+    font-family:'Newsreader', serif;
+    font-weight:400;
+    font-style:italic;
+    font-size:clamp(30px, 3.4vw, 44px);
+    line-height:1.28;
+    color:var(--paper-card);
+    letter-spacing:-0.01em;
+  }
+  .quote .accent{
+    color:var(--brass);
+    font-style:normal;
+  }
+  .quote-attr{
+    margin-top:26px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:14px;
+    color:rgba(250,244,230,0.55);
+    letter-spacing:0.02em;
+  }
+  .left-foot{
+    display:flex;
+    gap:28px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:rgba(250,244,230,0.4);
+    letter-spacing:0.06em;
+  }
+  .left-foot span b{
+    color:rgba(250,244,230,0.75);
+    font-weight:500;
+  }
+
+  /* RIGHT PANEL */
+  .right{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:48px;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(139,46,46,0.05), transparent 45%),
+      var(--paper);
+  }
+
+  .card{
+    width:100%;
+    max-width:398px;
+    background:var(--paper-card);
+    border:1px solid var(--paper-faint);
+    border-radius:3px;
+    box-shadow:
+      0 1px 2px rgba(28,36,48,0.04),
+      0 18px 40px -12px rgba(28,36,48,0.18);
+    position:relative;
+    padding:0;
+  }
+
+  /* punch hole */
+  .punch{
+    position:absolute;
+    top:24px; left:24px;
+    width:16px; height:16px;
+    border-radius:50%;
+    background:var(--paper);
+    box-shadow:inset 0 1px 3px rgba(28,36,48,0.25);
+  }
+
+  .card-head{
+    padding:26px 30px 18px 58px;
+    border-bottom:1px dashed var(--paper-faint);
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+  }
+  .fiche-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--garnet);
+    margin-bottom:6px;
+  }
+  .fiche-title{
+    font-family:'Newsreader', serif;
+    font-size:23px;
+    font-weight:500;
+    color:var(--ink);
+    line-height:1.2;
+  }
+  .fiche-num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-text);
+    opacity:0.45;
+    text-align:right;
+    white-space:nowrap;
+    padding-top:2px;
+  }
+
+  .card-body{
+    padding:26px 30px 30px 30px;
+  }
+
+  .field{
+    margin-bottom:18px;
+  }
+  .field label{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-text);
+    opacity:0.55;
+    margin-bottom:7px;
+  }
+  .field input{
+    width:100%;
+    border:none;
+    border-bottom:1.5px solid var(--paper-faint);
+    background:transparent;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:15px;
+    color:var(--ink-text);
+    padding:6px 2px 9px 2px;
+    outline:none;
+    transition:border-color .15s ease;
+  }
+  .field input:focus{
+    border-bottom-color:var(--garnet);
+  }
+  .field input::placeholder{
+    color:#B9AF98;
+  }
+
+  .row-between{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:20px 0 24px 0;
+    font-size:13px;
+  }
+  .remember{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--ink-text);
+    opacity:0.7;
+  }
+  .remember input{
+    accent-color:var(--garnet);
+    width:14px;height:14px;
+  }
+  .forgot{
+    color:var(--garnet);
+    text-decoration:none;
+    font-weight:500;
+  }
+  .forgot:hover{ text-decoration:underline; }
+
+  .btn-primary{
+    width:100%;
+    background:var(--garnet);
+    color:var(--paper-card);
+    border:none;
+    padding:13px 18px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:14.5px;
+    font-weight:600;
+    letter-spacing:0.01em;
+    border-radius:2px;
+    cursor:pointer;
+    transition:background .15s ease;
+    position:relative;
+  }
+  .btn-primary:hover{ background:var(--garnet-dark); }
+  .btn-primary:focus-visible{
+    outline:2px solid var(--ink);
+    outline-offset:2px;
+  }
+
+  .divider{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:22px 0 18px 0;
+    color:var(--ink-text);
+    opacity:0.4;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+  }
+  .divider::before, .divider::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:var(--paper-faint);
+  }
+
+  .signup-line{
+    text-align:center;
+    font-size:13.5px;
+    color:var(--ink-text);
+    opacity:0.75;
+  }
+  .signup-line a{
+    color:var(--garnet);
+    font-weight:600;
+    text-decoration:none;
+  }
+  .signup-line a:hover{ text-decoration:underline; }
+
+  /* stamp */
+  .stamp{
+    position:absolute;
+    bottom:22px;
+    right:26px;
+    width:78px;
+    height:78px;
+    border:1.6px solid rgba(139,46,46,0.55);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transform:rotate(-11deg);
+    opacity:0.7;
+    pointer-events:none;
+  }
+  .stamp::before{
+    content:"";
+    position:absolute;
+    inset:6px;
+    border:1px solid rgba(139,46,46,0.4);
+    border-radius:50%;
+  }
+  .stamp-text{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:8px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--garnet);
+    text-align:center;
+    line-height:1.5;
+  }
+
+  @media (max-width: 860px){
+    .wrap{ flex-direction:column; }
+    .left{ padding:40px 28px; min-height:280px; }
+    .quote{ font-size:26px; }
+    .right{ padding:32px 20px 56px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="left">
+    <div class="brandmark"><span class="dot"></span>PLATEFORME LITTÉRAIRE</div>
+
+    <div class="quote-block">
+      <div class="quote-eyebrow">Fiche N° 0142 — Extrait consulté</div>
+      <div class="quote">
+        « Lire, c’est <span class="accent">annoter</span> le monde<br>
+        avant de le <span class="accent">comprendre</span>. »
+      </div>
+      <div class="quote-attr">— pensée de lecture, marge d’étudiant</div>
+    </div>
+
+    <div class="left-foot">
+      <span><b>240+</b> œuvres au catalogue</span>
+      <span><b>Étudiant · Enseignant · Admin</b></span>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="card">
+      <div class="punch"></div>
+
+      <div class="card-head">
+        <div>
+          <div class="fiche-label">Fiche d'accès</div>
+          <div class="fiche-title">Se connecter</div>
+        </div>
+        <div class="fiche-num">N° 0142<br>ÉD. 2026</div>
+      </div>
+
+      <div class="card-body">
+        <div class="field">
+          <label for="email">Adresse e-mail</label>
+          <input id="email" type="email" placeholder="prenom.nom@univ.dz">
+        </div>
+        <div class="field">
+          <label for="pass">Mot de passe</label>
+          <input id="pass" type="password" placeholder="••••••••••">
+        </div>
+
+        <div class="row-between">
+          <label class="remember"><input type="checkbox"> Se souvenir de moi</label>
+          <a href="#" class="forgot">Mot de passe oublié ?</a>
+        </div>
+
+        <button class="btn-primary">Se connecter</button>
+
+        <div class="divider">Nouveau sur la plateforme</div>
+
+        <div class="signup-line">Pas encore de compte ? <a href="#">Créer un compte étudiant</a></div>
+
+        <div class="stamp">
+          <div class="stamp-text">UNIV.<br>DZ<br>2026</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
