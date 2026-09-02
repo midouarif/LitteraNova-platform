@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
+  // @ts-ignore
   const pdfParse = (await import("pdf-parse")).default;
   try {
     const data = await pdfParse(buffer);
