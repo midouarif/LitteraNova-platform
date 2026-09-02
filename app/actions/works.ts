@@ -4,70 +4,14 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
-  // Dynamically import pdfjs only when needed to prevent module evaluation crashes on Netlify/Vercel
-  const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
-  
-  // Disable worker for serverless environments to prevent hanging or crashes
-  // An empty string forces it to use the fake worker (main thread)
-  pdfjsLib.GlobalWorkerOptions.workerSrc = '';
-  
-  // Convert Node Buffer to Uint8Array for pdfjs
-  const data = new Uint8Array(buffer);
-  
-  // Load the document
-  const loadingTask = pdfjsLib.getDocument({ data });
-  const doc = await loadingTask.promise;
-  
-  const numPages = doc.numPages;
-  let allPagesText = [];
-
-  for (let i = 1; i <= numPages; i++) {
-    const page = await doc.getPage(i);
-    const textContent = await page.getTextContent();
-    
-    // Items have str and transform [scaleX, skewY, skewX, scaleY, tx, ty]
-    // tx is x coordinate, ty is y coordinate
-    const items = textContent.items.map((item: any) => ({
-      str: item.str,
-      x: item.transform[4],
-      y: item.transform[5]
-    }));
-
-    // Group items into lines based on Y coordinate (with tolerance)
-    const tolerance = 3;
-    const lines: { y: number, items: any[] }[] = [];
-
-    for (const item of items) {
-      if (!item.str.trim()) continue; // Skip empty strings
-      
-      const existingLine = lines.find(l => Math.abs(l.y - item.y) <= tolerance);
-      if (existingLine) {
-        existingLine.items.push(item);
-      } else {
-        lines.push({ y: item.y, items: [item] });
-      }
-    }
-
-    // Sort lines from top to bottom. 
-    // PDF coordinates typically have (0,0) at bottom-left, so larger Y is higher.
-    // We want to read from top to bottom, so sort descending by Y.
-    lines.sort((a, b) => b.y - a.y);
-
-    // Sort items within each line from left to right (ascending by X)
-    lines.forEach(line => {
-      line.items.sort((a, b) => a.x - b.x);
-    });
-
-    // Reconstruct the page text
-    const pageText = lines
-      .map(line => line.items.map(item => item.str).join(" "))
-      .join("\n");
-      
-    allPagesText.push(pageText);
+  const pdfParse = (await import("pdf-parse")).default;
+  try {
+    const data = await pdfParse(buffer);
+    return data.text;
+  } catch (error: any) {
+    console.error("PDF Parsing error:", error);
+    throw new Error("Failed to parse PDF document.");
   }
-
-  // Join pages with a blank line separator
-  return allPagesText.join("\n\n");
 }
 
 export async function uploadAndExtractPDF(formData: FormData) {
