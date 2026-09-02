@@ -3,22 +3,14 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
-// We use the legacy build of pdf.js since we are in a Node environment (Next.js Server Action)
-// @ts-ignore
-import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
-import path from "path";
-import { pathToFileURL } from "url";
-
-if (typeof window === "undefined") {
-  try {
-    const workerPath = path.join(process.cwd(), "node_modules", "pdfjs-dist", "legacy", "build", "pdf.worker.mjs");
-    pdfjsLib.GlobalWorkerOptions.workerSrc = pathToFileURL(workerPath).href;
-  } catch (e) {
-    console.warn("Could not set local pdf worker, falling back to default.", e);
-  }
-}
-
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
+  // Dynamically import pdfjs only when needed to prevent module evaluation crashes on Netlify/Vercel
+  const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  
+  // Disable worker for serverless environments to prevent hanging or crashes
+  // An empty string forces it to use the fake worker (main thread)
+  pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+  
   // Convert Node Buffer to Uint8Array for pdfjs
   const data = new Uint8Array(buffer);
   
