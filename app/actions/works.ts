@@ -231,11 +231,15 @@ export async function updateWorkData(
       updateData.cover_url = coverUrl;
     }
 
-    const { error } = await supabase
-      .from("works")
-      .update(updateData)
-      .eq("id", id)
-      .eq("created_by", user.id);
+    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+    const isAdmin = profile?.role === "admin";
+
+    let query = supabase.from("works").update(updateData).eq("id", id);
+    if (!isAdmin) {
+      query = query.eq("created_by", user.id);
+    }
+    
+    const { error } = await query;
 
     if (error) return { error: error.message };
 
@@ -262,7 +266,10 @@ export async function deleteWork(id: string) {
       .eq("id", id)
       .single();
 
-    if (!work || work.created_by !== user.id) {
+    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+    const isAdmin = profile?.role === "admin";
+
+    if (!work || (!isAdmin && work.created_by !== user.id)) {
       return { error: "Non autorisé à supprimer cette œuvre." };
     }
 
