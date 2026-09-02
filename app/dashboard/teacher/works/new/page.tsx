@@ -45,42 +45,52 @@ export default function NewWorkPage() {
       coverUrl: null,
     });
     
-    const result = await uploadAndExtractPDF(formData);
+    try {
+      const result = await uploadAndExtractPDF(formData);
 
-    if (result.error || !result.success) {
-      setError(result.error || "Une erreur est survenue.");
+      if (result.error || !result.success) {
+        setError(result.error || "Une erreur est survenue.");
+        setLoading(false);
+        return;
+      }
+
+      setWorkData(prev => ({ ...prev, fileUrl: result.fileUrl!, coverUrl: result.coverUrl || null }));
+      setExtractedText(result.extractedText || "");
+      setStep(2);
       setLoading(false);
-      return;
+    } catch (err: any) {
+      setError("Erreur de connexion au serveur lors de l'extraction: " + err.message);
+      setLoading(false);
     }
-
-    setWorkData(prev => ({ ...prev, fileUrl: result.fileUrl!, coverUrl: result.coverUrl || null }));
-    setExtractedText(result.extractedText || "");
-    setStep(2);
-    setLoading(false);
   };
 
   const handleStep2Submit = async () => {
     setLoading(true);
     setError(null);
 
-    const result = await saveWorkData(
-      workData.title,
-      workData.author,
-      workData.category,
-      workData.description,
-      workData.fileUrl,
-      extractedText,
-      workData.coverUrl
-    );
+    try {
+      const result = await saveWorkData(
+        workData.title,
+        workData.author,
+        workData.category,
+        workData.description,
+        workData.fileUrl,
+        extractedText,
+        workData.coverUrl
+      );
 
-    if (result.error) {
-      setError(result.error);
+      if (result.error) {
+        setError(result.error);
+        setLoading(false);
+        return;
+      }
+
+      if (result.success && result.workId) {
+        router.push(`/dashboard/teacher/works/${result.workId}`);
+      }
+    } catch (err: any) {
+      setError("Erreur de connexion au serveur lors de l'enregistrement: " + err.message);
       setLoading(false);
-      return;
-    }
-
-    if (result.success && result.workId) {
-      router.push(`/dashboard/teacher/works/${result.workId}`);
     }
   };
 

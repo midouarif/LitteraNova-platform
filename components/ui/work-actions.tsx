@@ -16,13 +16,18 @@ export function WorkActions({ workId }: { workId: string }) {
     }
 
     setLoading(true);
-    const result = await deleteWork(workId);
+    try {
+      const result = await deleteWork(workId);
 
-    if (result.error) {
-      alert(result.error);
+      if (result.error) {
+        alert(result.error);
+        setLoading(false);
+      } else {
+        router.push("/dashboard/teacher/works");
+      }
+    } catch (err: any) {
+      alert("Erreur de connexion au serveur. " + err.message);
       setLoading(false);
-    } else {
-      router.push("/dashboard/teacher/works");
     }
   };
 

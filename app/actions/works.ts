@@ -10,8 +10,12 @@ import path from "path";
 import { pathToFileURL } from "url";
 
 if (typeof window === "undefined") {
-  const workerPath = path.join(process.cwd(), "node_modules", "pdfjs-dist", "legacy", "build", "pdf.worker.mjs");
-  pdfjsLib.GlobalWorkerOptions.workerSrc = pathToFileURL(workerPath).href;
+  try {
+    const workerPath = path.join(process.cwd(), "node_modules", "pdfjs-dist", "legacy", "build", "pdf.worker.mjs");
+    pdfjsLib.GlobalWorkerOptions.workerSrc = pathToFileURL(workerPath).href;
+  } catch (e) {
+    console.warn("Could not set local pdf worker, falling back to default.", e);
+  }
 }
 
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
