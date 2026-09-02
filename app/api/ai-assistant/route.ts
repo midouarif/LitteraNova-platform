@@ -23,6 +23,8 @@ TÂCHES QUE TU PEUX EFFECTUER :
 - Éclairer le contexte d'un personnage ou d'un événement dans le passage
 - Aider à formuler une analyse sans la faire à la place de l'étudiant`;
 
+export const maxDuration = 60;
+
 export async function POST(req: Request) {
   try {
     const supabase = await createClient();
