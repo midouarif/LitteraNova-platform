@@ -119,7 +119,7 @@ export async function POST(req: Request) {
 
     // 4. Call Gemini
     const apiKey = process.env.GEMINI_API_KEY;
-    const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
+    const model = process.env.GEMINI_MODEL || "gemini-1.5-flash";
     
     if (!apiKey) {
       console.error("Missing GEMINI_API_KEY");
