@@ -4,11 +4,16 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, FileText, Edit } from "lucide-react";
 import { WorkActions } from "@/components/ui/work-actions";
+import { getWorkEngagement } from "@/app/actions/engagement";
+import { WorkComments } from "@/components/ui/work-comments";
 
 export default async function TeacherWorkDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient();
   const { id } = await params;
   
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return notFound();
+
   // Fetch work
   const { data: work, error: workError } = await supabase
     .from("works")
@@ -19,6 +24,8 @@ export default async function TeacherWorkDetailPage({ params }: { params: Promis
   if (workError || !work) {
     notFound();
   }
+
+  const { comments } = await getWorkEngagement(id);
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -84,6 +91,16 @@ export default async function TeacherWorkDetailPage({ params }: { params: Promis
             <p className="text-[var(--color-ink-text)] opacity-50 font-sans">Aucun PDF n'a été attaché à cette œuvre.</p>
           </div>
         )}
+      </div>
+
+      {/* Comments Section */}
+      <div className="mt-12 mb-8">
+        <WorkComments 
+          workId={work.id} 
+          initialComments={comments} 
+          currentUserId={user.id} 
+          currentUserRole="teacher" 
+        />
       </div>
     </div>
   );

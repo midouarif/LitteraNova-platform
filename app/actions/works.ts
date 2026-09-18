@@ -2,18 +2,28 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import path from "path";
+import { pathToFileURL } from "url";
 
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
-  // @ts-ignore
-  const pdfParse = (await import("pdf-parse")).default;
   try {
+    // Import directly from lib to bypass the buggy index.js (which tries to read a test file if module.parent is missing in Webpack)
+    // @ts-ignore
+    const pdfParseModule = await import("pdf-parse/lib/pdf-parse.js");
+    const pdfParse = (pdfParseModule as any).default || pdfParseModule;
+    
+    if (typeof pdfParse !== "function") {
+      throw new Error(`pdf-parse is not a function. Type is ${typeof pdfParse}`);
+    }
+
     const data = await pdfParse(buffer);
     return data.text;
   } catch (error: any) {
     console.error("PDF Parsing error:", error);
-    throw new Error("Failed to parse PDF document.");
+    throw new Error("Failed to parse PDF document: " + (error?.message || error));
   }
 }
+
 
 export async function uploadAndExtractPDF(formData: FormData) {
   const supabase = await createClient();

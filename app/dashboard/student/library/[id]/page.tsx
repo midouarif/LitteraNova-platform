@@ -3,11 +3,23 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, BookOpen, Download } from "lucide-react";
+import { getWorkEngagement } from "@/app/actions/engagement";
+import { UpvoteButton } from "@/components/ui/upvote-button";
+import { WorkComments } from "@/components/ui/work-comments";
 
 export default async function StudentWorkDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient();
   const { id } = await params;
   
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return notFound();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
   // Fetch work
   const { data: work, error: workError } = await supabase
     .from("works")
@@ -18,6 +30,8 @@ export default async function StudentWorkDetailPage({ params }: { params: Promis
   if (workError || !work) {
     notFound();
   }
+
+  const { comments, hasUpvoted } = await getWorkEngagement(id);
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -40,8 +54,15 @@ export default async function StudentWorkDetailPage({ params }: { params: Promis
           
           {/* Info */}
           <div className="flex-1">
-            <div className="font-mono text-xs tracking-wider uppercase text-[var(--color-brass)] mb-2">
-              {work.category}
+            <div className="flex items-start justify-between mb-2">
+              <div className="font-mono text-xs tracking-wider uppercase text-[var(--color-brass)] mb-2">
+                {work.category}
+              </div>
+              <UpvoteButton 
+                workId={work.id} 
+                initialUpvotes={work.upvotes_count || 0} 
+                initialHasUpvoted={hasUpvoted} 
+              />
             </div>
             <h1 className="font-serif text-4xl md:text-5xl text-[var(--color-ink)] mb-2 leading-tight">
               {work.title}
@@ -83,6 +104,16 @@ export default async function StudentWorkDetailPage({ params }: { params: Promis
             </div>
           </div>
         </div>
+      </div>
+      
+      {/* Comments Section */}
+      <div className="mt-12 mb-8">
+        <WorkComments 
+          workId={work.id} 
+          initialComments={comments} 
+          currentUserId={user.id} 
+          currentUserRole={profile?.role || "student"} 
+        />
       </div>
     </div>
   );

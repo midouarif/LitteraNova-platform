@@ -13,7 +13,7 @@ export default async function TeacherWorksPage() {
   // Fetch works created by this teacher
   const { data: works, error } = await supabase
     .from("works")
-    .select("*")
+    .select("*, work_comments(count)")
     .eq("created_by", user?.id)
     .order("created_at", { ascending: false });
 
@@ -59,6 +59,8 @@ export default async function TeacherWorksPage() {
               category={work.category}
               href={`/dashboard/teacher/works/${work.id}`}
               coverUrl={work.cover_url}
+              upvotesCount={work.upvotes_count}
+              commentsCount={work.work_comments?.[0]?.count || 0}
             />
           ))}
         </div>

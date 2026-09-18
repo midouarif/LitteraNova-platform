@@ -14,7 +14,11 @@ export default async function StudentLibraryPage({
   const query = typeof resolvedParams.q === "string" ? resolvedParams.q : "";
   const category = typeof resolvedParams.category === "string" ? resolvedParams.category : "";
 
-  let dbQuery = supabase.from("works").select("*").order("created_at", { ascending: false });
+  let dbQuery = supabase
+    .from("works")
+    .select("*, work_comments(count)")
+    .order("upvotes_count", { ascending: false })
+    .order("created_at", { ascending: false });
 
   if (category) {
     dbQuery = dbQuery.eq("category", category);
@@ -73,6 +77,8 @@ export default async function StudentLibraryPage({
               category={work.category}
               href={`/dashboard/student/library/${work.id}`}
               coverUrl={work.cover_url}
+              upvotesCount={work.upvotes_count}
+              commentsCount={work.work_comments?.[0]?.count || 0}
             />
           ))}
         </div>
