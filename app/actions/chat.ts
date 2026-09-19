@@ -288,9 +288,6 @@ export async function getChatContacts(): Promise<ChatContact[]> {
     .eq('role', targetRole)
     .order('full_name', { ascending: true })
 
-  if (targetRole === 'teacher') {
-    query = query.eq('teacher_request_status', 'approved')
-  }
 
   const { data, error } = await query
 

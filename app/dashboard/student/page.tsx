@@ -75,7 +75,7 @@ export default async function StudentDashboard() {
           )}
           
           <div className="mt-6 pt-4 border-t border-[var(--color-paper-faint)]">
-            <Link href="/dashboard/student/works" className="text-[var(--color-garnet)] text-sm font-medium hover:underline">
+            <Link href="/dashboard/student/library" className="text-[var(--color-garnet)] text-sm font-medium hover:underline">
               Explorer le catalogue →
             </Link>
           </div>
